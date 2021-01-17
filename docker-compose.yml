@@ -19,8 +19,8 @@ services:
     ports:
       - 1991:1991
     volumes:
-      - ./api:/app
-    working_dir: /app
+      - ./api:/usr/local/go/src/linqumate
+    working_dir: /usr/local/go/src/linqumate
     depends_on:
       - db
       

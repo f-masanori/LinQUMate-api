@@ -2,6 +2,11 @@ package main
 
 import (
 	"fmt"
+	gormHandler "linqumate/infra/mysql"
+	"linqumate/interface/api"
+	mysqlUserRepo "linqumate/repository/mysql"
+	"linqumate/usecase"
+
 	"net/http"
 
 	"github.com/jinzhu/gorm"
@@ -11,17 +16,20 @@ import (
 )
 
 func main() {
-	// Echo instance
-	e := echo.New()
+	e := echo.New() //echoというwebフレームワークを使って実装します
 
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(middleware.Logger())  //リクエストがきた時にターミナルにリクエスト内容をプリントしてくれる
+	e.Use(middleware.Recover()) //panic(例外処理のようなもの)が起きた時に自動的に復旧してくれる
 
-	// Routes
-	e.GET("/", hello)
+	/* userContorllerを作成 */
+	dbhandler := gormHandler.NewMysqlHandler() //ここで違うDBハンドラーにすればデータの保存先を簡単に変更できる
+	userRepositroy := mysqlUserRepo.NewMysqlUserRepository(dbhandler)
+	userUsecase := usecase.NewUserUsecase(&userRepositroy)
+	userController := api.NewUserController(userUsecase)
 
-	// Start server
+	e.GET("/a", hello)
+	e.GET("/user", userController.UserCreate)
+
 	e.Logger.Fatal(e.Start(":1991"))
 }
 
